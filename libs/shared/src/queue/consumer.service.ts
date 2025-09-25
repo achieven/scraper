@@ -29,26 +29,15 @@ export abstract class ConsumerService {
         await this.consumer.subscribe({ topic: this.inputTopic, fromBeginning: true })
         let counter = 0;
         await this.consumer.run({
-            eachMessage: async ({ topic, partition, message }) => {
-              counter++;
-              const messageValue = message.value?.toString();
+            eachMessage: async ({ topic, partition, message }: { topic: string, partition: number, message: KafkaMessage }) => {
+              
               try {
-                if (messageValue) {
-                  await this.eachMessage(messageValue)
-                  return
-                } else {
-                  throw new Error('Message value is undefined');
-                }
+                counter++;
+                this.handleMessage(this.getMessageValue(message))
               } catch (err) {
                 if (counter - 2 === this.consumerConfig?.retry?.retries) {
-                  console.log('counter hit', messageValue)
-                  counter = 0;
-                  if (messageValue) {
-                      await this.produceDeadLetter(topic, partition, message);
-                      return
-                  } else {
-                      throw new Error('Message value is undefined');
-                  }
+                  counter = 0
+                  this.handleRetryExhausted(this.getMessageValue(message), topic, partition, message)
                 } else {
                     throw err;
                 }
@@ -57,10 +46,32 @@ export abstract class ConsumerService {
         })
     }
 
+    getMessageValue(message: KafkaMessage): string | undefined {
+      return message?.value?.toString();
+    }
+
     async eachMessage(messageValue: string): Promise<void> {
       const response = await this.consumeMessage(JSON.parse(messageValue));
       const newValue = {response, ...JSON.parse(messageValue)}
       await this.produceMessage(JSON.stringify(newValue));
+    }
+
+    private async handleMessage(messageValue: string | undefined) {
+      if (messageValue) {
+        await this.eachMessage(messageValue)
+        return
+      } else {
+        throw new Error('Message value is undefined');
+      }
+    }
+
+    private async handleRetryExhausted(messageValue: string | undefined, topic: string, partition: number, message: KafkaMessage) {
+        if (messageValue) {
+            await this.produceDeadLetter(topic, partition, message);
+            return
+        } else {
+            throw new Error('Message value is undefined');
+        }
     }
 
     protected abstract consumeMessage(messageData: Url): Promise<any>;

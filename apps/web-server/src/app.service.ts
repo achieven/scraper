@@ -28,7 +28,7 @@ export class AppService extends ProducerConsumerWebsocketService {
   }
 
   async consumeMessage(messageData: Html) {
-    await this.notify(this.clients.get(messageData.websocket), messageData);
+    await this.notify(messageData.websocket, messageData);
   }
 
   async eachMessage(messageValue: string) {

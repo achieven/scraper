@@ -21,11 +21,11 @@ export abstract class ProducerConsumerWebsocketService extends ProducerConsumerS
                 const data = JSON.parse(message.toString());
                 await this.sendMessage(this.outputTopic, JSON.stringify({...data, websocket: uuid}));
             });
-        });
-        
+        });    
     }
 
-    async notify(client: WebSocket, message: any) { 
+    async notify(websocketId: string, message: any) { 
+        const client = this.clients.get(websocketId);
         if (client && client.readyState === WebSocket.OPEN) {
             await client.send(JSON.stringify({
                 event: 'alert',

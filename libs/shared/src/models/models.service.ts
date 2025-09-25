@@ -1,21 +1,5 @@
 import { Injectable } from '@nestjs/common';
 
-export interface Message {
-    data: Url | Html
-}
-
-export interface UrlMessage {
-    data: Url
-}
-
-export interface IsValidMessage {
-    isValid: boolean
-}
-
-export interface HtmlMessage {
-
-}
-
 export interface Url  {
     url: string
 }
