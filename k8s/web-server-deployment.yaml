@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: kafka
+  annotations:
+    kompose.cmd: kompose convert
+    kompose.version: 1.37.0 (HEAD)
+  labels:
+    io.kompose.service: web-server
+  name: web-server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: web-server
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert
+        kompose.version: 1.37.0 (HEAD)
+      labels:
+        io.kompose.service: web-server
+    spec:
+      containers:
+        - env:
+            - name: KAFKA_HOST
+              value: my-cluster-kafka-bootstrap
+            - name: KAFKA_PORT
+              value: "9092"
+            - name: NODE_ENV
+              value: local
+          image: scraper-web-server:latest
+          name: my-web-server
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 3001
+              protocol: TCP
+      restartPolicy: Always

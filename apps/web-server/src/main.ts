@@ -10,9 +10,6 @@ async function bootstrap() {
   });
 }
 bootstrap()
-  .then(() => {
-    console.log('Web Server is running on port 3001');
-  })
   .catch((error) => {
     console.error('Failed to start Web Server:', error);
     process.exit(1);

@@ -3,6 +3,7 @@
 apps/*/dist
 apps/*/node_modules
 libs/shared/node_modules
+libs/shared/dist
 /dist
 /node_modules
 /build

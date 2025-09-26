@@ -1,64 +1,61 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
-
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
-
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
-
-## Description
-
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
-
-## Project setup
-
-```bash
-$ npm install
-```
-
-## Compile and run the project
-
-```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
-```
-
-## Run tests
-
-```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
-```
-
 ## Prerequisites
-1. K8s cluster(kind/minikube etc..)
+1. K8s cluster(i'm using kind, perhaps could be minikube etc..)
 2. kubectl
-3. keda with namescape called "scraper"
-4. Deploy kafka broker using the supplied docker-compose.yml file
+3. docker-compose for local installation of kafka (also option for deploying the apps)
+4. nodejs (i'm using v20) & nestjs for local debugging
+
+## Deployment
+
+### k8s:
+#### install kafka:
+  ```
+  kubectl create namespace kafka
+  kubectl create -f k8s/kafka-deployment.yaml -n kafka
+  kubectl apply -f k8s/kafka-single-node.yaml -n kafka 
+  ```
+
+#### deploy services:
+
+  build the image  
+  load to local k8s  
+  apply the kubectl yaml file  
+  see logs
+  ```
+    SERVICE=scraper
+    docker compose build $SERVICE --progress=plain --no-cache
+    kind load docker-image scraper-${SERVICE}:latest
+    kubectl delete -f k8s/$SERVICE-deployment.yaml 
+    kubectl apply -f k8s/$SERVICE-deployment.yaml 
+    kubectl logs $(kubectl get pods -n kafka | grep $SERVICE | awk '{print $1;}') -n kafka -f              
+  ```  
+
+#### port forward
+  ```
+  kubectl port-forward -n kafka deployment/web-server 3001:3001 && kubectl port-forward -n kafka deployment/kafka-ui 8080:8080
+  ```
+
+### local debugging:
+#### install kafka using docker-compose
+```
+  docker-compose up kafka -d
+  docker-compose up kafka-ui -d
+```
+
+#### docker compose apps locally
+run the app as docker container
+````
+  docker-compose up scraper -d
+````
+
+#### debug locally:
+enter the relevant directory  
+install dependencies  
+compile  
+run the app
+```
+cd apps/scraper
+npm i
+npm run build
+npm run start:dev
+```
+

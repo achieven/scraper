@@ -1,3 +1,4 @@
+import { Injectable } from '@nestjs/common';
 import { Kafka } from 'kafkajs';
 
 export const Topics = {
@@ -15,16 +16,19 @@ export const Groups = {
 } as const 
 type Groups = typeof Groups[keyof typeof Groups];
 
-
+@Injectable()
 export class QueueService {
     private kafka: Kafka;
    
 
 
     constructor() {
+        const brokerUrl = `${process.env.KAFKA_HOST || 'localhost'}:${process.env.KAFKA_PORT || '9092'}`
+        console.log("Creating Kafka with broker URL:", brokerUrl)
         this.kafka = new Kafka({
-            brokers: [`${process.env.KAFKA_HOST || 'localhost'}:9092`]
+            brokers: [brokerUrl]
           })
+        console.log("Kafka instance created successfully")
     }
 
     getKafka() {

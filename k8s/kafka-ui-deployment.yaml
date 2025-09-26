@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: kafka
+  annotations:
+    kompose.cmd: kompose convert
+    kompose.version: 1.37.0 (HEAD)
+  labels:
+    io.kompose.service: kafka-ui
+  name: kafka-ui
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: kafka-ui
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert
+        kompose.version: 1.37.0 (HEAD)
+      labels:
+        io.kompose.service: kafka-ui
+    spec:
+      containers:
+        - env:
+            - name: KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS
+              value: my-cluster-kafka-bootstrap:9092
+            - name: KAFKA_CLUSTERS_0_NAME
+              value: kafka
+          image: provectuslabs/kafka-ui:latest
+          name: kafka-ui
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+      restartPolicy: Always

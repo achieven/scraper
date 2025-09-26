@@ -19,7 +19,7 @@ export abstract class ConsumerService {
             retry: {
               retries: 3,
               restartOnFailure: async(err) => {
-                console.log("sdfsdfsf");
+                console.log(err)
                 return Promise.resolve(true)
               }
             }
@@ -29,11 +29,12 @@ export abstract class ConsumerService {
         await this.consumer.subscribe({ topic: this.inputTopic, fromBeginning: true })
         let counter = 0;
         await this.consumer.run({
-            eachMessage: async ({ topic, partition, message }: { topic: string, partition: number, message: KafkaMessage }) => {
-              
+            eachMessage: async ({ topic, partition, message }) => {
               try {
                 counter++;
-                this.handleMessage(this.getMessageValue(message))
+                console.log(counter)
+                await this.handleMessage(this.getMessageValue(message))
+                counter = 0
               } catch (err) {
                 if (counter - 2 === this.consumerConfig?.retry?.retries) {
                   counter = 0

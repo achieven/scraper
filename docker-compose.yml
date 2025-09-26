@@ -33,3 +33,51 @@ services:
     environment:
       KAFKA_CLUSTERS_0_NAME: kafka
       KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:29092
+
+  web-server:
+    build:
+      context: .
+      dockerfile: apps/web-server/Dockerfile
+    container_name: my_web_server
+    ports:
+      - "3001:3001"
+    environment:
+      NODE_ENV: local
+      KAFKA_HOST: kafka
+      KAFKA_PORT: 29092
+    depends_on:
+      - kafka
+    restart: always
+    deploy: 
+      replicas: 1
+
+  job-manager:
+    build:
+      context: .
+      dockerfile: apps/job-manager/Dockerfile
+    container_name: my_job_manager
+    environment:
+      NODE_ENV: local
+      KAFKA_HOST: kafka
+      KAFKA_PORT: 29092
+    depends_on:
+      - kafka
+    restart: always
+    deploy: 
+      replicas: 1
+
+  scraper:
+    build:
+      context: .
+      dockerfile: apps/scraper/Dockerfile
+    container_name: my_scraper
+    environment:
+      NODE_ENV: local
+      KAFKA_HOST: kafka
+      KAFKA_PORT: 29092
+    depends_on:
+      - kafka
+    restart: always
+    deploy: 
+      replicas: 1
+      
