@@ -3,6 +3,8 @@ import { Consumer, ConsumerConfig, KafkaMessage } from 'kafkajs';
 
 import { QueueService } from './queue.service';
 import { Url } from '../models/models.service';
+import { DeadLetterProducerService } from './dead-letter-producer.service';
+
 
 @Injectable()
 export abstract class ConsumerService {
@@ -11,7 +13,7 @@ export abstract class ConsumerService {
     protected consumerConfig?: ConsumerConfig;
     protected consumer?: Consumer;
 
-    constructor(protected readonly queueService: QueueService) {}
+    constructor(protected readonly queueService: QueueService, protected readonly deadLetterProducerService: DeadLetterProducerService) {}
 
     async init() {
         this.consumerConfig = {
@@ -26,6 +28,7 @@ export abstract class ConsumerService {
         }
         this.consumer = this.queueService.getKafka().consumer(this.consumerConfig);
         await this.consumer.connect();
+        console.log('Consumer connected');
         await this.consumer.subscribe({ topic: this.inputTopic, fromBeginning: true })
         let counter = 0;
         await this.consumer.run({
@@ -33,12 +36,12 @@ export abstract class ConsumerService {
               try {
                 counter++;
                 console.log(counter)
-                await this.handleMessage(this.getMessageValue(message))
+                await this.handleMessageIfValued(this.getMessageValue(message))
                 counter = 0
               } catch (err) {
                 if (counter - 2 === this.consumerConfig?.retry?.retries) {
                   counter = 0
-                  this.handleRetryExhausted(this.getMessageValue(message), topic, partition, message)
+                  this.handleRetryExhausted(this.getMessageValue(message), topic, partition, message, err)
                 } else {
                     throw err;
                 }
@@ -51,24 +54,22 @@ export abstract class ConsumerService {
       return message?.value?.toString();
     }
 
-    async eachMessage(messageValue: string): Promise<void> {
-      const response = await this.consumeMessage(JSON.parse(messageValue));
-      const newValue = {response, ...JSON.parse(messageValue)}
-      await this.produceMessage(JSON.stringify(newValue));
+    protected async handleMessage(messageValue: string): Promise<any> {
+      return await this.consumeMessage(JSON.parse(messageValue));   
     }
 
-    private async handleMessage(messageValue: string | undefined) {
+    private async handleMessageIfValued(messageValue: string | undefined) {
       if (messageValue) {
-        await this.eachMessage(messageValue)
+        await this.handleMessage(messageValue)
         return
       } else {
         throw new Error('Message value is undefined');
       }
     }
 
-    private async handleRetryExhausted(messageValue: string | undefined, topic: string, partition: number, message: KafkaMessage) {
+    private async handleRetryExhausted(messageValue: string | undefined, topic: string, partition: number, message: KafkaMessage, err: any) {
         if (messageValue) {
-            await this.produceDeadLetter(topic, partition, message);
+            await this.deadLetterProducerService.sendDeadLetter(topic, partition, message, err);
             return
         } else {
             throw new Error('Message value is undefined');
@@ -76,8 +77,6 @@ export abstract class ConsumerService {
     }
 
     protected abstract consumeMessage(messageData: Url): Promise<any>;
-    protected abstract produceMessage(messageValue: any): Promise<void>;
-    protected abstract produceDeadLetter(topic: string, partition: number | null, message: KafkaMessage): Promise<void>;
 }
 
 @Injectable()

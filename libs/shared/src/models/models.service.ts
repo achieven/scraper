@@ -1,7 +1,9 @@
 import { Injectable } from '@nestjs/common';
 
 export interface Url  {
-    url: string
+    url: string,
+    websocket: string,
+    websocketId: string
 }
 
 export interface Html {

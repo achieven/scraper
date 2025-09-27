@@ -29,6 +29,8 @@ spec:
               value: "9092"
             - name: NODE_ENV
               value: local
+            - name: TERMINATOR_HOST
+              value: scraper
           image: scraper-web-server:latest
           name: my-web-server
           imagePullPolicy: Never

@@ -7,7 +7,7 @@
 ## Deployment
 
 ### k8s:
-#### install kafka:
+#### install kafka (note there's also a kafka-ui deployment & service for your cenvenience):
   ```
   kubectl create namespace kafka
   kubectl create -f k8s/kafka-deployment.yaml -n kafka
@@ -15,19 +15,26 @@
   ```
 
 #### deploy services:
-
   build the image  
   load to local k8s  
+  for services that have open ports (web-server/scraper) - expose the service itself
   apply the kubectl yaml file  
   see logs
   ```
     SERVICE=scraper
+
+    # build and load
     docker compose build $SERVICE --progress=plain --no-cache
     kind load docker-image scraper-${SERVICE}:latest
+
+    # only for services that have open ports (web-server/scraper) 
+    kubectl apply -f k8s/$SERVICE-service.yaml 
+    
+    # deployment of services
     kubectl delete -f k8s/$SERVICE-deployment.yaml 
     kubectl apply -f k8s/$SERVICE-deployment.yaml 
     kubectl logs $(kubectl get pods -n kafka | grep $SERVICE | awk '{print $1;}') -n kafka -f              
-  ```  
+  ``` 
 
 #### port forward
   ```

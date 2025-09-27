@@ -1,35 +1,50 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Inject } from '@nestjs/common';
 import { Url, Html } from '../../../libs/shared/src/models/models.service';
 import {
   Groups,
   QueueService,
   Topics,
 } from '../../../libs/shared/src/queue/queue.service';
-import { ProducerConsumerWebsocketService } from '../../../libs/shared/src/queue/producer-consumer-websocket.service';
-import { ConcreteConsumerService } from '../../../libs/shared/src/queue/consumer.service';
+import { InitiatorWebsocketService } from '../../../libs/shared/src/websocket/initiator-websocket.service';
+import { MessageProducerService } from '../../../libs/shared/src/queue/message-producer.service';
+import { DeadLetterProducerService } from '../../../libs/shared/src/queue/dead-letter-producer.service';
 
 @Injectable()
-export class AppService extends ProducerConsumerWebsocketService {
-  protected outputTopic: string = Topics.jobManager;
-  protected inputTopic: string = Topics.final;
-  protected groupId: string = Groups.webServer;
-
-  constructor(
-    protected readonly queueService: QueueService,
-    protected readonly consumerService: ConcreteConsumerService,
-  ) {
-    super(queueService, consumerService);
-    this.consumerService.eachMessage = this.eachMessage.bind(this);
-    this.consumerService.onInit(this.groupId, this.inputTopic);
+export class MyWebsocketService extends InitiatorWebsocketService {
+  constructor(@Inject('INITIATOR_PORT') port: number, @Inject('TERMINATOR_PORT') terminatorPort: number) {
+    super(port, terminatorPort);
   }
 
-  async create(body: Url) {
+  async handleMessage(websocketId: string, data: any) {
+    var a = 0
+    await this.processMessage(websocketId, data);
+  }
+}
+
+@Injectable()
+export class AppService extends MessageProducerService {
+  protected outputTopic: string = Topics.jobManager;
+  protected groupId: string = Groups.webServer;
+
+  constructor(protected readonly queueService: QueueService, protected readonly websocketService: MyWebsocketService, protected readonly deadLetterProducerService: DeadLetterProducerService) {
+    super(queueService, deadLetterProducerService);
+    this.websocketService.handleMessage = this.handleMessage.bind(this);
+  }
+
+  async create(body: Url) {//TODO delete this and the controller
     return await this.sendMessage(this.outputTopic, JSON.stringify(body));
   }
 
-  async consumeMessage(messageData: Html) {
-    await this.notify(messageData.websocket, messageData);
+  isMessageBrokerMessage(data: any) {
+    return data.event === 'job';
   }
+
+  async handleMessage(websocketId: string, data: any) {
+    await this.websocketService.processMessage(websocketId, data);
+    if (this.isMessageBrokerMessage(data)) {
+      await this.sendMessage(this.outputTopic, JSON.stringify({...data, websocket: websocketId, websocketId: this.websocketService.websocketId}));
+    }
+}
 
   async eachMessage(messageValue: string) {
     await this.consumeMessage(JSON.parse(messageValue) as Html);

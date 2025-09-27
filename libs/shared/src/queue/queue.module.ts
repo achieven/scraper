@@ -1,11 +1,11 @@
 import { Module } from '@nestjs/common';
 import { QueueService } from './queue.service';
-import { ConcreteProducerService } from './producer.service';
-import { ConcreteConsumerService } from './consumer.service';
+import { DeadLetterProducerService } from './dead-letter-producer.service';
+import { ConcreteMessageProducerService } from './message-producer.service';
 
 
 @Module({
-  exports: [QueueService, ConcreteProducerService, ConcreteConsumerService],
-  providers: [QueueService, ConcreteProducerService, ConcreteConsumerService]
+  exports: [QueueService, DeadLetterProducerService, ConcreteMessageProducerService],
+  providers: [QueueService, DeadLetterProducerService, ConcreteMessageProducerService]
 })
 export class QueueModule {}

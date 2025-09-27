@@ -32,4 +32,7 @@ spec:
           image: scraper-scraper:latest
           imagePullPolicy: Never
           name: my-scraper
+          ports:
+            - containerPort: 3002
+              protocol: TCP
       restartPolicy: Always

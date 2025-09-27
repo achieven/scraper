@@ -27,7 +27,7 @@ services:
     image: provectuslabs/kafka-ui:latest
     container_name: kafka-ui
     ports:
-      - "8080:8080"
+      - "9000:8080"
     depends_on:
       - kafka
     environment:
@@ -45,6 +45,7 @@ services:
       NODE_ENV: local
       KAFKA_HOST: kafka
       KAFKA_PORT: 29092
+      TERMINATOR_HOST: scraper
     depends_on:
       - kafka
     restart: always

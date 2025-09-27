@@ -2,8 +2,9 @@ import { Injectable } from '@nestjs/common';
 import { KafkaMessage } from 'kafkajs';
 
 import { QueueService } from './queue.service';
-import { ConcreteProducerService } from './producer.service';
+import { ConcreteMessageProducerService } from './message-producer.service';
 import { ConsumerService } from './consumer.service';
+import { DeadLetterProducerService } from './dead-letter-producer.service';
 
 @Injectable()
 export abstract class ConsumerProducerService extends ConsumerService {
@@ -11,15 +12,21 @@ export abstract class ConsumerProducerService extends ConsumerService {
     protected abstract inputTopic: string;
     protected abstract groupId: string;
 
-    constructor(protected readonly queueService: QueueService, protected readonly producerService: ConcreteProducerService) {
-      super(queueService);
+    constructor(
+      protected readonly queueService: QueueService, 
+      protected readonly producerService: ConcreteMessageProducerService, 
+      protected readonly deadLetterProducerService: DeadLetterProducerService
+    ) {
+      super(queueService, deadLetterProducerService);
     }
 
     protected async produceMessage(messageValue: any): Promise<void> {
       await this.producerService.sendMessage(this.outputTopic, messageValue);
     }
 
-    protected async produceDeadLetter(topic: string, partition: number | null, message: KafkaMessage): Promise<void> {
-      await this.producerService.sendDeadLetter(topic, partition, message);
+    protected async handleMessage(messageValue: string): Promise<void> {
+      const response = await super.handleMessage(messageValue);
+      const newValue = {response, ...JSON.parse(messageValue)}
+      await this.produceMessage(JSON.stringify(newValue));
     }
 }
