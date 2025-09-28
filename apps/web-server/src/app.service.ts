@@ -1,16 +1,14 @@
 import { Injectable, Inject } from '@nestjs/common';
-import { Url, Html } from '../../../libs/shared/src/models/models.service';
-import {
-  Groups,
-  TopicName,
-  GroupName,
-  Topics,
-} from '../../../libs/shared/src/queue/queue.service';
+
+
 import { InitiatorWebsocketService } from '../../../libs/shared/src/websocket/initiator-websocket.service';
 import { MessageProducerService } from '../../../libs/shared/src/queue/message-producer.service';
 import { DeadLetterProducerService } from '../../../libs/shared/src/queue/dead-letter-producer.service';
 import { MessageQueueService } from '../../../libs/shared/src/queue/message-queue.service';
-import { EventName, Events } from '../../../libs/shared/src/websocket/websocket.service';
+
+import { Url, WebsocketData } from '../../../libs/shared/src/models/models.service';
+import { Groups, TopicName, GroupName, Topics } from '../../../libs/shared/src/queue/queue.service';
+import { Events } from '../../../libs/shared/src/websocket/websocket.service';
 
 @Injectable()
 export class MyWebsocketService extends InitiatorWebsocketService {
@@ -32,19 +30,19 @@ export class AppService extends MessageProducerService {
     this.websocketService.handleMessage = this.handleMessage.bind(this);
   }
 
-  isMessageBrokerMessage(data: any) {
-    const event: EventName = data.event;
-    return event === Events.job;
+  isMessageBrokerMessage(data: WebsocketData) {
+    return data.event === Events.job;
   }
 
-  async handleMessage(websocketId: string, data: any) {
+  async handleMessage(websocketId: string, data: WebsocketData) {
     await this.websocketService.processMessage(websocketId, data);
     if (this.isMessageBrokerMessage(data)) {
-      await this.sendMessage(this.outputTopic, JSON.stringify({...data, websocket: websocketId, websocketId: this.websocketService.websocketId}));
+      const message: Url = {
+        url: data.message,
+        clientWebsocketId: websocketId,
+        initiatorWebsocketId: this.websocketService.websocketId
+      }
+      await this.sendMessage(this.outputTopic, JSON.stringify(message));
     }
-}
-
-  async eachMessage(messageValue: string) {
-    await this.consumeMessage(JSON.parse(messageValue) as Html);
   }
 }

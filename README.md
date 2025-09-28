@@ -20,6 +20,8 @@
   for services that have open ports (web-server/scraper) - expose the service itself
   apply the kubectl yaml file  
   see logs
+
+  for example this deploys the scraper service:
   ```
     SERVICE=scraper
 
@@ -49,13 +51,13 @@
 ```
 
 #### docker compose apps locally
-run the app as docker container
+run the app you want as docker container, for example:
 ````
   docker-compose up scraper -d
 ````
 
 #### debug locally:
-enter the relevant directory  
+enter the relevant directory for the app you want to debug
 install dependencies  
 compile  
 run the app
@@ -66,15 +68,35 @@ npm run build
 npm run start:dev
 ```
 
+## Test:
+from browser:
+```
+const ws = new WebSocket('ws://localhost:3001');
+
+ws.onopen = () => {
+  console.log('Connected to proxy server.');
+};
+
+ws.onmessage = (event) => {
+  console.log('Message from server:', event.data);
+};
+
+ws.onclose = () => {
+  console.log('Disconnected from proxy server.');
+};
+
+ws.send(JSON.stringify({event: 'job', message: 'https://google.com'}));
+
+```
+
 
 ## TODOS:  
 
 1. handle lost connections between websockets (meaning if not all are working then messages will be lost)
-2. handle race condition of websocket client (web-server) potentially doesn't have it's websocket id to put into the message broker
-3. handle connection of web-server if scraper isn't available (currently depends on it)
-4. test on load balancer with multiple services instances
-5. implement proxy
-6. implement autoscaling with keda/other
-7. add documentation draw.io
-8. add documentation regarding limitations and development flow
+2. handle connection of web-server if scraper isn't available (currently depends on it)
+3. test on load balancer with multiple services instances
+4. implement proxy
+5. implement autoscaling with keda/other
+6. add documentation draw.io
+7. add documentation regarding limitations and development flow
 

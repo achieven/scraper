@@ -1,9 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { Consumer, ConsumerConfig, KafkaMessage } from 'kafkajs';
 
-import { Url } from '../models/models.service';
+
 import { DeadLetterProducerService } from './dead-letter-producer.service';
 import { MessageQueueService } from './message-queue.service';
+
+import { Url } from '../models/models.service';
+
 
 
 @Injectable()
@@ -22,7 +25,7 @@ export abstract class ConsumerService {
               retries: 3,
             }
         }
-        this.consumer = this.queueService.getKafka().consumer(this.consumerConfig);
+        this.consumer = this.queueService.myKafka.consumer(this.consumerConfig);
         await this.consumer.connect();
         console.log('Consumer connected');
         await this.consumer.subscribe({ topic: this.inputTopic, fromBeginning: true })
@@ -90,7 +93,7 @@ export class ConcreteConsumerService extends ConsumerService {
     protected consumeMessage(messageData: Url): Promise<void> {
       return Promise.resolve();
     };
-    protected produceMessage(messageValue: any): Promise<void> {
+    protected produceMessage(messageValue: string): Promise<void> {
       return Promise.resolve();
     };
     protected produceDeadLetter(topic: string, partition: number | null, message: KafkaMessage): Promise<void> {

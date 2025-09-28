@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { KafkaMessage } from 'kafkajs';
 
-import { QueueService } from './queue.service';
+
 import { ConcreteMessageProducerService } from './message-producer.service';
 import { ConsumerService } from './consumer.service';
 import { DeadLetterProducerService } from './dead-letter-producer.service';
@@ -21,7 +20,7 @@ export abstract class ConsumerProducerService extends ConsumerService {
       super(queueService, deadLetterProducerService);
     }
 
-    protected async produceMessage(messageValue: any): Promise<void> {
+    protected async produceMessage(messageValue: string): Promise<void> {
       await this.producerService.sendMessage(this.outputTopic, messageValue);
     }
 

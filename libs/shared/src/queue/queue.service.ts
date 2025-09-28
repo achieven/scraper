@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { Kafka } from 'kafkajs';
 
+
 export const Topics = {
     deadLetter: 'dead-letter',
     jobManager: 'job-manager',
@@ -21,7 +22,7 @@ export abstract class QueueService {
     protected kafka: Kafka;
 
     constructor(host: string | undefined, port: string | undefined) {
-        const brokerUrl = `${host || 'localhost'}:${port|| '9092'}`
+        const brokerUrl = `${host || 'localhost'}:${Number(port)|| 9092}`
         console.log("Creating Kafka with broker URL:", brokerUrl)
         this.kafka = new Kafka({
             brokers: [brokerUrl]
@@ -29,7 +30,7 @@ export abstract class QueueService {
         console.log("Kafka instance created successfully")
     }
 
-    getKafka() {
+    get myKafka() {
         return this.kafka;
     }
 }

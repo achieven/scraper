@@ -1,8 +1,7 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
-import { KafkaMessage, Producer } from 'kafkajs';
+import { Producer } from 'kafkajs';
 
-import { QueueService, Topics } from './queue.service';
-import { DeadLetterProducerService } from './dead-letter-producer.service';
+import { QueueService } from './queue.service';
 
 
 @Injectable()
@@ -11,7 +10,7 @@ export abstract class GeneralProducerService implements OnModuleInit {
     protected producer: Producer;
 
     constructor(protected readonly queueService: QueueService) {
-        this.producer = this.queueService.getKafka().producer({
+        this.producer = this.queueService.myKafka.producer({
             retry: {
                 retries: 3,
             }

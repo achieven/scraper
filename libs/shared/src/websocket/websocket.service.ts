@@ -1,6 +1,9 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
-import { WebSocketServer, WebSocket } from 'ws';
+import { WebSocketServer, WebSocket, Data } from 'ws';
 import { v4 as uuidv4 } from 'uuid';
+
+
+import { WebsocketData } from '../models/models.service';
 
 export const Events = {
     connected: 'connected',
@@ -28,17 +31,18 @@ export abstract class WebsocketService implements OnModuleInit {
         const clientId = uuidv4();
         this.addClient(clientId, ws);
         // this.handleHeartbeatAndIdle(ws);
-        ws.send(JSON.stringify({
-            event: 'connected',
+        const connectMessage = {
+            event: Events.connected,
             message: clientId
-        }));
+        }
+        await this.sendMessage(ws, connectMessage);
         ws.on ('message', this.onMessage.bind(this, clientId))
         ws.on('close', () => {
             this.removeClient(clientId);
         });
     }
 
-    async onMessage(clientId: string, message: string): Promise<any> {
+    async onMessage(clientId: string, message: Data | Buffer): Promise<any> {
         const data = JSON.parse(message.toString());
         await this.handleMessage(clientId, data);
     }
@@ -46,13 +50,18 @@ export abstract class WebsocketService implements OnModuleInit {
 
     public abstract handleMessage(websocketId: string, data: any): Promise<void>;
 
+    async sendMessage(client: WebSocket, message: WebsocketData) {
+        await client.send(JSON.stringify(message));
+    }
+
     async notify(websocketId: string, message: any) { 
         const client = this.getClient(websocketId);
         if (client && client.readyState === WebSocket.OPEN) {
-            await client.send(JSON.stringify({
+            const alertMessage = {
                 event: Events.alert,
                 message 
-            }));
+            }
+            await this.sendMessage(client, alertMessage);
         } else {
             throw new Error(`Client not found or inactive ${websocketId}`);
         }

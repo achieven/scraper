@@ -1,4 +1,5 @@
 import { Injectable } from "@nestjs/common";
+
 import { QueueService } from "./queue.service";
 
 @Injectable()

@@ -1,6 +1,9 @@
 import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
 import { WebSocket } from 'ws';
-import { WebsocketService, Events, EventName } from './websocket.service';
+
+
+import { WebsocketService, Events } from './websocket.service';
+import { WebsocketData } from '../models/models.service';
 
 @Injectable()
 export abstract class InitiatorWebsocketService extends WebsocketService implements OnModuleInit {
@@ -22,19 +25,24 @@ export abstract class InitiatorWebsocketService extends WebsocketService impleme
         }
           
         this.terminatorWebSocket.onmessage = (event) => {
-           super.onMessage('', event.data.toString());
+           super.onMessage('', event.data);
         }
     }
 
-    async processMessage(websocketId: string, data: any): Promise<void> {
-        const event: EventName = data.event;
+
+
+    async processMessage(websocketId: string, data: WebsocketData): Promise<void> {
+        const event = data.event;
         if (event === Events.connected) {
             this.websocketId = data.message;
         } else if (event === Events.alert) {
-            await this.notify(data.message.websocket, data.message);
+            await this.notify(data.message.websocketId, data.message);
         } if(event === Events.job) {
             
         } 
-    }
-   
+    }  
 }
+
+process.on('SIGINT', async () => {
+    // await this.terminatorWebSocket.close();
+});

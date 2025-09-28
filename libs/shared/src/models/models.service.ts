@@ -1,14 +1,17 @@
 import { Injectable } from '@nestjs/common';
 
+
+import { EventName } from '../websocket/websocket.service';
+
 export interface Url  {
     url: string,
-    websocket: string,
-    websocketId: string
+    clientWebsocketId: string,
+    initiatorWebsocketId: string,
 }
 
-export interface Html {
-    html: string,
-    websocket: string
+export interface WebsocketData {
+    event: EventName,
+    message: any
 }
 
 @Injectable()

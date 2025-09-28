@@ -1,5 +1,6 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
-import { KafkaMessage, Producer } from 'kafkajs';
+import { KafkaMessage } from 'kafkajs';
+
 
 import { QueueService, Topics } from './queue.service';
 import { GeneralProducerService } from './general-producer.service';
