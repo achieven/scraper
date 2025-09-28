@@ -2,6 +2,13 @@ import { Injectable, OnModuleInit } from '@nestjs/common';
 import { WebSocketServer, WebSocket } from 'ws';
 import { v4 as uuidv4 } from 'uuid';
 
+export const Events = {
+    connected: 'connected',
+    job: 'job',
+    alert: 'alert'
+} as const
+export type EventName = typeof Events[keyof typeof Events];
+
 @Injectable()
 export abstract class WebsocketService implements OnModuleInit {
     protected wss: WebSocketServer;
@@ -43,7 +50,7 @@ export abstract class WebsocketService implements OnModuleInit {
         const client = this.getClient(websocketId);
         if (client && client.readyState === WebSocket.OPEN) {
             await client.send(JSON.stringify({
-                event: 'alert',
+                event: Events.alert,
                 message 
             }));
         } else {

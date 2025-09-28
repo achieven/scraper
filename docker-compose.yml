@@ -45,6 +45,8 @@ services:
       NODE_ENV: local
       KAFKA_HOST: kafka
       KAFKA_PORT: 29092
+      DEAD_LETTER_HOST: kafka
+      DEAD_LETTER_PORT: 29092
       TERMINATOR_HOST: scraper
     depends_on:
       - kafka
@@ -61,6 +63,8 @@ services:
       NODE_ENV: local
       KAFKA_HOST: kafka
       KAFKA_PORT: 29092
+      DEAD_LETTER_HOST: kafka
+      DEAD_LETTER_PORT: 29092
     depends_on:
       - kafka
     restart: always
@@ -76,6 +80,8 @@ services:
       NODE_ENV: local
       KAFKA_HOST: kafka
       KAFKA_PORT: 29092
+      DEAD_LETTER_HOST: kafka
+      DEAD_LETTER_PORT: 29092
     depends_on:
       - kafka
     restart: always

@@ -66,3 +66,15 @@ npm run build
 npm run start:dev
 ```
 
+
+## TODOS:  
+
+1. handle lost connections between websockets (meaning if not all are working then messages will be lost)
+2. handle race condition of websocket client (web-server) potentially doesn't have it's websocket id to put into the message broker
+3. handle connection of web-server if scraper isn't available (currently depends on it)
+4. test on load balancer with multiple services instances
+5. implement proxy
+6. implement autoscaling with keda/other
+7. add documentation draw.io
+8. add documentation regarding limitations and development flow
+

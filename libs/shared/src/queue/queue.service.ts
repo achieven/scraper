@@ -7,23 +7,21 @@ export const Topics = {
     scraper: 'scraper',
     final: 'final'
 } as const 
-type Topics = typeof Topics[keyof typeof Topics];
+export type TopicName = typeof Topics[keyof typeof Topics];
 
 export const Groups = {
     jobManager: 'job-manager',
     scraper: 'scraper',
     webServer: 'web-server'
 } as const 
-type Groups = typeof Groups[keyof typeof Groups];
+export type GroupName = typeof Groups[keyof typeof Groups];
 
 @Injectable()
-export class QueueService {
-    private kafka: Kafka;
-   
+export abstract class QueueService {
+    protected kafka: Kafka;
 
-
-    constructor() {
-        const brokerUrl = `${process.env.KAFKA_HOST || 'localhost'}:${process.env.KAFKA_PORT || '9092'}`
+    constructor(host: string | undefined, port: string | undefined) {
+        const brokerUrl = `${host || 'localhost'}:${port|| '9092'}`
         console.log("Creating Kafka with broker URL:", brokerUrl)
         this.kafka = new Kafka({
             brokers: [brokerUrl]

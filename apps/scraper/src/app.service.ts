@@ -1,12 +1,12 @@
 import { Inject, Injectable } from '@nestjs/common';
 import axios from 'axios';
 import { ConsumerService } from '../../../libs/shared/src/queue/consumer.service';
-import { ConsumerProducerService } from '../../../libs/shared/src/queue/consumer-producer.service';
 import { TerminatorWebsocketService } from '../../../libs/shared/src/websocket/terminator-websocket.service';
 import { DeadLetterProducerService } from '../../../libs/shared/src/queue/dead-letter-producer.service';
 
-import { Topics, Groups, QueueService } from '../../../libs/shared/src/queue/queue.service';
+import {  TopicName, GroupName, Groups, Topics } from '../../../libs/shared/src/queue/queue.service';
 import { Url } from '../../../libs/shared/src/models/models.service';
+import { MessageQueueService } from '../../../libs/shared/src/queue/message-queue.service';
 
 @Injectable()
 export class MyWebsocketService extends TerminatorWebsocketService {
@@ -17,10 +17,10 @@ export class MyWebsocketService extends TerminatorWebsocketService {
 
 @Injectable()
 export class AppService extends ConsumerService {
-  protected inputTopic: string = Topics.scraper;
-  protected groupId: string = Groups.scraper;
+  protected inputTopic: TopicName = Topics.scraper;
+  protected groupId: GroupName = Groups.scraper;
 
-  constructor(protected readonly queueService: QueueService, protected readonly websocketService: MyWebsocketService, protected readonly deadLetterProducerService: DeadLetterProducerService) {
+  constructor(protected readonly queueService: MessageQueueService, protected readonly websocketService: MyWebsocketService, protected readonly deadLetterProducerService: DeadLetterProducerService) {
     super(queueService, deadLetterProducerService);
   }
 

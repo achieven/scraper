@@ -1,16 +1,15 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { KafkaMessage, Producer } from 'kafkajs';
 
-import { QueueService, Topics } from './queue.service';
 import { DeadLetterProducerService } from './dead-letter-producer.service';
 import { GeneralProducerService } from './general-producer.service';
-
+import { MessageQueueService } from './message-queue.service';
 
 @Injectable()
 export abstract class MessageProducerService extends GeneralProducerService implements OnModuleInit {
     protected abstract outputTopic: string;
 
-    constructor(protected readonly queueService: QueueService, protected readonly deadLetterProducerService: DeadLetterProducerService) {
+    constructor(protected readonly queueService: MessageQueueService, protected readonly deadLetterProducerService: DeadLetterProducerService) {
        super(queueService);
     }
 
@@ -29,11 +28,3 @@ export abstract class MessageProducerService extends GeneralProducerService impl
 export class ConcreteMessageProducerService extends MessageProducerService {
     protected outputTopic: string = '';
 }
-
-// @Injectable()
-// export class ConcreteProducerService extends ProducerService {
-//     protected outputTopic: string = '';
-//     constructor(protected readonly queueService: QueueService, protected readonly deadLetterProducerService: DeadLetterProducerService) {
-//         super(queueService, deadLetterProducerService);
-//     }
-// }

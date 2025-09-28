@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { Consumer, ConsumerConfig, KafkaMessage } from 'kafkajs';
 
-import { QueueService } from './queue.service';
 import { Url } from '../models/models.service';
 import { DeadLetterProducerService } from './dead-letter-producer.service';
+import { MessageQueueService } from './message-queue.service';
 
 
 @Injectable()
@@ -13,17 +13,13 @@ export abstract class ConsumerService {
     protected consumerConfig?: ConsumerConfig;
     protected consumer?: Consumer;
 
-    constructor(protected readonly queueService: QueueService, protected readonly deadLetterProducerService: DeadLetterProducerService) {}
+    constructor(protected readonly queueService: MessageQueueService, protected readonly deadLetterProducerService: DeadLetterProducerService) {}
 
     async init() {
         this.consumerConfig = {
             groupId: this.groupId,
             retry: {
               retries: 3,
-              restartOnFailure: async(err) => {
-                console.log(err)
-                return Promise.resolve(true)
-              }
             }
         }
         this.consumer = this.queueService.getKafka().consumer(this.consumerConfig);

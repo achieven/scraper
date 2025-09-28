@@ -5,6 +5,7 @@ import { QueueService } from './queue.service';
 import { ConcreteMessageProducerService } from './message-producer.service';
 import { ConsumerService } from './consumer.service';
 import { DeadLetterProducerService } from './dead-letter-producer.service';
+import { MessageQueueService } from './message-queue.service';
 
 @Injectable()
 export abstract class ConsumerProducerService extends ConsumerService {
@@ -13,7 +14,7 @@ export abstract class ConsumerProducerService extends ConsumerService {
     protected abstract groupId: string;
 
     constructor(
-      protected readonly queueService: QueueService, 
+      protected readonly queueService: MessageQueueService, 
       protected readonly producerService: ConcreteMessageProducerService, 
       protected readonly deadLetterProducerService: DeadLetterProducerService
     ) {

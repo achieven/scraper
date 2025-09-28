@@ -2,12 +2,15 @@ import { Injectable, Inject } from '@nestjs/common';
 import { Url, Html } from '../../../libs/shared/src/models/models.service';
 import {
   Groups,
-  QueueService,
+  TopicName,
+  GroupName,
   Topics,
 } from '../../../libs/shared/src/queue/queue.service';
 import { InitiatorWebsocketService } from '../../../libs/shared/src/websocket/initiator-websocket.service';
 import { MessageProducerService } from '../../../libs/shared/src/queue/message-producer.service';
 import { DeadLetterProducerService } from '../../../libs/shared/src/queue/dead-letter-producer.service';
+import { MessageQueueService } from '../../../libs/shared/src/queue/message-queue.service';
+import { EventName, Events } from '../../../libs/shared/src/websocket/websocket.service';
 
 @Injectable()
 export class MyWebsocketService extends InitiatorWebsocketService {
@@ -15,28 +18,23 @@ export class MyWebsocketService extends InitiatorWebsocketService {
     super(port, terminatorPort);
   }
 
-  async handleMessage(websocketId: string, data: any) {
-    var a = 0
-    await this.processMessage(websocketId, data);
-  }
+  async handleMessage(websocketId: string, data: any) {}
 }
+
 
 @Injectable()
 export class AppService extends MessageProducerService {
-  protected outputTopic: string = Topics.jobManager;
-  protected groupId: string = Groups.webServer;
+  protected outputTopic: TopicName = Topics.jobManager;
+  protected groupId: GroupName = Groups.webServer;
 
-  constructor(protected readonly queueService: QueueService, protected readonly websocketService: MyWebsocketService, protected readonly deadLetterProducerService: DeadLetterProducerService) {
+  constructor(protected readonly queueService: MessageQueueService, protected readonly websocketService: MyWebsocketService, protected readonly deadLetterProducerService: DeadLetterProducerService) {
     super(queueService, deadLetterProducerService);
     this.websocketService.handleMessage = this.handleMessage.bind(this);
   }
 
-  async create(body: Url) {//TODO delete this and the controller
-    return await this.sendMessage(this.outputTopic, JSON.stringify(body));
-  }
-
   isMessageBrokerMessage(data: any) {
-    return data.event === 'job';
+    const event: EventName = data.event;
+    return event === Events.job;
   }
 
   async handleMessage(websocketId: string, data: any) {

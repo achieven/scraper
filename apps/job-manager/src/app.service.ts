@@ -1,14 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { isURL } from 'class-validator';
 import { ConsumerProducerService } from '../../../libs/shared/src/queue/consumer-producer.service';
-import { Topics, Groups } from '../../../libs/shared/src/queue/queue.service';
+import { Topics, Groups, TopicName, GroupName } from '../../../libs/shared/src/queue/queue.service';
 import { Url } from '../../../libs/shared/src/models/models.service';
 
 @Injectable()
 export class AppService extends ConsumerProducerService {
-  protected inputTopic: string = Topics.jobManager;
-  protected outputTopic: string = Topics.scraper;
-  protected groupId: string = Groups.jobManager;
+  protected inputTopic: TopicName = Topics.jobManager;
+  protected outputTopic: TopicName = Topics.scraper;
+  protected groupId: GroupName = Groups.jobManager;
 
   async onModuleInit() {
     await this.init();

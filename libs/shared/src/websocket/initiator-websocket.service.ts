@@ -1,6 +1,6 @@
 import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
 import { WebSocket } from 'ws';
-import { WebsocketService } from './websocket.service';
+import { WebsocketService, Events, EventName } from './websocket.service';
 
 @Injectable()
 export abstract class InitiatorWebsocketService extends WebsocketService implements OnModuleInit {
@@ -8,8 +8,9 @@ export abstract class InitiatorWebsocketService extends WebsocketService impleme
     public websocketId: string = '';
     constructor(port: number, @Inject('TERMINATOR_PORT') terminatorPort: number) {
         super(port)
-        console.log(`Connecting to terminator server at ws://${process.env.TERMINATOR_HOST}:${terminatorPort}`);
-        this.terminatorWebSocket = new WebSocket(`ws://${process.env.TERMINATOR_HOST}:${terminatorPort}`);
+        const terminatorHost = process.env.TERMINATOR_HOST || 'localhost';
+        console.log(`Connecting to terminator server at ws://${terminatorHost}:${terminatorPort}`);
+        this.terminatorWebSocket = new WebSocket(`ws://${terminatorHost}:${terminatorPort}`);
         this.terminatorWebSocket.onopen = () => {
             console.log('Connected to terminator server.');
         };
@@ -26,13 +27,14 @@ export abstract class InitiatorWebsocketService extends WebsocketService impleme
     }
 
     async processMessage(websocketId: string, data: any): Promise<void> {
-        if (data.event === 'connected') {
+        const event: EventName = data.event;
+        if (event === Events.connected) {
             this.websocketId = data.message;
-        } else if(data.event === 'job') {
+        } else if (event === Events.alert) {
+            await this.notify(data.message.websocket, data.message);
+        } if(event === Events.job) {
             
-        } else if (data.event === 'alert') {
-            this.notify(data.message.websocket, data.message);
-        }
+        } 
     }
    
 }
