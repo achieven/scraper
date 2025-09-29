@@ -135,7 +135,7 @@ const WebSocket = require('ws');
 # from browser no need to do anything, but is server is using k8s - goes to same pod every time
 
 # run test code
-const ws = new WebSocket('ws://localhost:3001');
+const ws = new WebSocket('ws://localhost:3001'); # from k8s cluster use "web-server" instead of "localhost"
 
 ws.onopen = () => {
   console.log('Connected to proxy server.');
@@ -244,6 +244,8 @@ Drawbacks:
 
 
 ### Current Architecture diagram:
+
+https://drive.google.com/file/d/1o9qlkZcMoZ1At15dyXwZg4yLJdd80Mwr/view?usp=sharing
 
 ![My Flowchart](docs/architecture_diagram.png)
 
