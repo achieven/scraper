@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { WebSocket } from 'ws';
 
 
-import { WebsocketData } from '../models/models.service';
+import { WebsocketData } from './websocket.service';
 
 @Injectable()
 export abstract class WebsocketClientService {

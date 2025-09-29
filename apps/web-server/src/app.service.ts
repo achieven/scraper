@@ -5,9 +5,9 @@ import { MessageProducerService } from '../../../libs/shared/src/queue/message-p
 import { DeadLetterProducerService } from '../../../libs/shared/src/queue/dead-letter-producer.service';
 import { MessageQueueService } from '../../../libs/shared/src/queue/message-queue.service';
 
-import { QueueMessageUrl, WebsocketData } from '../../../libs/shared/src/models/models.service';
+import { QueueMessageUrl } from '../../../libs/shared/src/queue/queue.service';
+import { WebsocketData, Events } from '../../../libs/shared/src/websocket/websocket.service';
 import { Groups, TopicName, GroupName, Topics } from '../../../libs/shared/src/queue/queue.service';
-import { Events } from '../../../libs/shared/src/websocket/websocket-server.service';
 import { WebsocketServerService } from '../../../libs/shared/src/websocket/websocket-server.service';
 
 @Injectable()
@@ -22,7 +22,7 @@ export class MyWebsocketService extends WebsocketServerService {
 
 @Injectable()
 export class AppService extends MessageProducerService {
-  protected outputTopic: TopicName = Topics.jobManager;
+  protected outputTopic: TopicName = Topics.jobReceived;
   protected groupId: GroupName = Groups.webServer;
 
   constructor(protected readonly queueService: MessageQueueService, protected readonly websocketService: MyWebsocketService, protected readonly deadLetterProducerService: DeadLetterProducerService) {

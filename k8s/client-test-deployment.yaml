@@ -28,8 +28,8 @@ spec:
               console.log('Connected to proxy server.');
             };
             
-            ws2.onmessage = (event) => {
-              console.log('Message from server2:', event.data.substring(0,100));
+            ws3.onmessage = (event) => {
+              console.log('Message from server3:', event.data.substring(0,100));
             };
             
             ws.onclose = () => {

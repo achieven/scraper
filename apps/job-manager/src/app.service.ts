@@ -5,13 +5,13 @@ import { isURL } from 'class-validator';
 import { ConsumerProducerService } from '../../../libs/shared/src/queue/consumer-producer.service';
 
 import { Topics, Groups, TopicName, GroupName } from '../../../libs/shared/src/queue/queue.service';
-import { QueueMessageUrl } from '../../../libs/shared/src/models/models.service';
+import { QueueMessageUrl } from '../../../libs/shared/src/queue/queue.service';
 
 
 @Injectable()
 export class AppService extends ConsumerProducerService {
-  protected inputTopic: TopicName = Topics.jobManager;
-  protected outputTopic: TopicName = Topics.scraper;
+  protected inputTopic: TopicName = Topics.jobReceived;
+  protected outputTopic: TopicName = Topics.jobValidated;
   protected groupId: GroupName = Groups.jobManager;
 
   async onModuleInit() {

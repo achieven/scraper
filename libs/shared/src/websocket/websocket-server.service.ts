@@ -1,21 +1,9 @@
-import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
+import { Injectable, OnModuleInit } from '@nestjs/common';
 import { WebSocketServer, WebSocket, Data } from 'ws';
 import { v4 as uuidv4 } from 'uuid';
 
+import { WebsocketData, HtmlMessage, Events, MessageErrors } from './websocket.service';
 
-import { WebsocketData, Html } from '../models/models.service';
-
-export const Events = {
-    connected: 'connected',
-    job: 'job',
-    alert: 'alert'
-} as const
-export type EventName = typeof Events[keyof typeof Events];
-
-const MessageErrors = {
-    clientNotFound: 'Client not found or inactive',
-} as const
-type MessageErrorName = typeof MessageErrors[keyof typeof MessageErrors];
 
 @Injectable()
 export abstract class WebsocketServerService implements OnModuleInit {
@@ -63,7 +51,7 @@ export abstract class WebsocketServerService implements OnModuleInit {
     async processMessage(data: WebsocketData): Promise<void> {
         switch (data.event) {
             case Events.alert:
-                const message = data.message as Html;
+                const message = data.message as HtmlMessage;
                 await this.notify(message.clientWebsocketId, message.response);
                 break;
             case Events.job:

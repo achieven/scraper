@@ -2,11 +2,17 @@ import { Injectable } from '@nestjs/common';
 import { Kafka } from 'kafkajs';
 
 
+export interface QueueMessageUrl {
+    url: string
+    clientWebsocketId: string,
+    internalIp: string,
+}
+
 export const Topics = {
     deadLetter: 'dead-letter',
-    jobManager: 'job-manager',
-    scraper: 'scraper',
-    final: 'final'
+    jobReceived: 'job-received',
+    jobValidated: 'job-validated',
+    jobFinished: 'job-finished' //currently unused
 } as const 
 export type TopicName = typeof Topics[keyof typeof Topics];
 

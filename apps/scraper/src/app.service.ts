@@ -8,8 +8,8 @@ import { DeadLetterProducerService } from '../../../libs/shared/src/queue/dead-l
 import { MessageQueueService } from '../../../libs/shared/src/queue/message-queue.service';
 
 import {  TopicName, GroupName, Groups, Topics } from '../../../libs/shared/src/queue/queue.service';
-import { QueueMessageUrl } from '../../../libs/shared/src/models/models.service';
-import { Events } from '../../../libs/shared/src/websocket/websocket-server.service';
+import { QueueMessageUrl } from '../../../libs/shared/src/queue/queue.service';
+import { Events } from '../../../libs/shared/src/websocket/websocket.service';
 
 @Injectable()
 export class MyWebsocketService extends WebsocketClientService {
@@ -20,7 +20,7 @@ export class MyWebsocketService extends WebsocketClientService {
 
 @Injectable()
 export class AppService extends ConsumerService {
-  protected inputTopic: TopicName = Topics.scraper;
+  protected inputTopic: TopicName = Topics.jobValidated;
   protected groupId: GroupName = Groups.scraper;
 
   constructor(protected readonly queueService: MessageQueueService, protected readonly websocketService: MyWebsocketService, protected readonly deadLetterProducerService: DeadLetterProducerService) {

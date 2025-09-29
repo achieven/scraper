@@ -5,7 +5,7 @@ import { Consumer, ConsumerConfig, KafkaMessage } from 'kafkajs';
 import { DeadLetterProducerService } from './dead-letter-producer.service';
 import { MessageQueueService } from './message-queue.service';
 
-import { QueueMessageUrl } from '../models/models.service';
+import { QueueMessageUrl } from './queue.service';
 
 
 export const ErrorMessages = {  
