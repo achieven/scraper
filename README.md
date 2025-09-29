@@ -123,3 +123,8 @@ Both of the above edge cases would have been easier to mitigate if i had persist
 
 Another edge case is that the consumer disconnects right before the message is being sent to the dead letter queue, causing never ending processing of the same message
 
+
+
+
+![My Flowchart](docs/architecture_diagram.png)
+

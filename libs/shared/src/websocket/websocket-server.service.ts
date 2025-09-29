@@ -107,7 +107,7 @@ export abstract class WebsocketServerService implements OnModuleInit {
         const isOperationalError = err.message.startsWith(MessageErrors.clientNotFound)
         if (isOperationalError) {
             console.error(message, err);
-            //ideally send to some DB or persist to some "dead-letter" topic (though it's not dead-letter by definition)
+            //ideally send to some DB or an external monotoring tool
         } else {
             throw err;
         }
