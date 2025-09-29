@@ -26,6 +26,7 @@ export abstract class WebsocketClientService {
 
     async connect(host: string): Promise<WebSocket> {
         const thisConnection = await new Promise<WebSocket>((resolve, reject) => {
+            console.log('Websocket client is Connecting to websocket server', host);
             const connection = new WebSocket(`ws://${host}:${this.port}`);
             connection.onopen = () => {
                 console.log('Connected to server', host);
@@ -36,6 +37,10 @@ export abstract class WebsocketClientService {
             connection.onerror = (err) => {
                 reject(err.error)
             }
+
+            setTimeout(() => {
+                reject('Connection timed out');
+            }, 5000);
         });
 
         thisConnection.onclose = () => {
@@ -52,6 +57,7 @@ export abstract class WebsocketClientService {
 
     async sendMessage(host: string, data: WebsocketData) {
         const server = await this.getConnectedServer(host);
+        console.log('Sending message to server:', host);
         await server.send(JSON.stringify(data));
     }
 

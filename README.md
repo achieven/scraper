@@ -18,7 +18,7 @@
 
 #### Deploy services:
   build the image  
-  load to local k8s  
+  load to local k8s registry
   for services that have open ports (web-server) - expose the service itself
   apply the kubectl yaml file  
   scale if you want
@@ -118,7 +118,7 @@ ws.send(JSON.stringify({event: 'job', message: 'https://google.com'}));
 
 Both of the above edge cases would have been easier to mitigate if i had persisted the html to some other topic, and that consumer would have sent the response back to the web-server websocket, but my original idea was not to load on the message broker with heavy html. Possibly this whole feature can also be accomplished with a regular http server instead of websockets, and persist the html to a DB with a transactional outbox pattern, and the user would have polled that, but, the text in the task was "recieves scrape jobs and returns html", so hard to tell if it's meant to be in same request, or can be in separate requests by polling.
 
-3. Another edge case is that the consumer disconnects right before the message is being sent to the dead letter queue, causing never ending processing of the same message
+3. Another edge case is that the consumer disconnects right before the message is being sent to the dead letter queue, causing never ending processing of the same message. Specifically, inside the k8s cluster, in case of edge case (1), the onerror/onclose events of the websocket client aren't reached, in this case the promise rejects after some timeout, but seems that the message is being consumed repeatedly. I didn't have the time to fix this issue. 
 
 ### Code improvements:
   1. ConcreteMessageProducerService is a real class but has an unused field outputTopic, but can't be abstract because it needs to   be used as a real instance by the producer using it - maybe can implement it by some smarter inheritence (though the consumer-producer already extends the consumer)  

@@ -36,6 +36,7 @@ export class AppService extends ConsumerService {
     try {
       await this.sendHtmlToWebServer(messageData.internalIp, messageData.clientWebsocketId, response);
     } catch (err) {
+      console.log(ErrorMessages.messageWithResponse, 'consumeMessage')
       throw new Error(ErrorMessages.messageWithResponse + JSON.stringify({stack: err.stack, response}));
     }
     

@@ -30,6 +30,7 @@ export abstract class ConsumerService {
             }
         }
         this.consumer = this.queueService.myKafka.consumer(this.consumerConfig);
+        console.log('Connecting consumer');
         await this.consumer.connect();
         console.log('Consumer connected');
         await this.consumer.subscribe({ topic: this.inputTopic, fromBeginning: true })
@@ -37,11 +38,12 @@ export abstract class ConsumerService {
         await this.consumer.run({
             eachMessage: async ({ topic, partition, message }) => {
               try {
+                console.log(new Date().toISOString(), 'Processing message, topic:',topic, ', partition:', partition, ', offset', message.offset);
                 counter++;
                 await this.handleMessageIfValued(this.getMessageValue(message))
                 counter = 0
               } catch (err: any) {
-                
+                console.log(ErrorMessages.messageWithResponse, 'eachMessage', 'counter:', counter)
                 const exhastedRestries = counter - 1 === this.consumerConfig?.retry?.retries
                 let messageResult;
                 if (exhastedRestries) {

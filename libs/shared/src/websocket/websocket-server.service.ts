@@ -24,6 +24,7 @@ export abstract class WebsocketServerService implements OnModuleInit {
     protected clients: Map<string, WebSocket>;
 
     constructor(port: number, internalIp: string) {
+        console.log('Creating websocket server, internalIp:', internalIp);
         this.wss = new WebSocketServer({ port: port || Number(process.env.PORT) || 3001 });
         this.internalIp = internalIp;
         this.clients = new Map();
@@ -35,7 +36,7 @@ export abstract class WebsocketServerService implements OnModuleInit {
 
     async onConnection(ws: WebSocket) {
         const clientId = uuidv4();
-        console.log('Client connected', clientId);
+        console.log('Client connected to websocket server. clientId:', clientId);
         this.addClient(clientId, ws);
         const connectMessage = {
             event: Events.connected,
@@ -44,13 +45,14 @@ export abstract class WebsocketServerService implements OnModuleInit {
         await this.sendMessage(ws, connectMessage);
         ws.on ('message', this.onMessage.bind(this, clientId))
         ws.on('close', () => {
-            console.log('Client disconnected', clientId);
+            console.log('Client disconnected, clientId:', clientId);
             this.removeClient(clientId);
         });
     }
 
     async onMessage(clientId: string, message: Data | Buffer): Promise<any> {
         try {
+            console.log('Received message from clientId:', clientId);
             const data = JSON.parse(message.toString());
             await this.handleMessage(clientId, data);
         } catch (err) {
