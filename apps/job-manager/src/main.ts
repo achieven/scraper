@@ -6,12 +6,12 @@ import { AppModule } from './app.module';
 async function bootstrap() {
   const app = await NestFactory.createApplicationContext(AppModule);
   process.on('SIGINT', async () => {
-    console.log('Shutting down Inventory Service...');
+    console.log('Shutting down job-manager Service...');
     await app.close();
     process.exit(0);
   });
 }
 bootstrap().catch((error) => {
-  console.error('Failed to start Inventory Service:', error);
+  console.error('Failed to start job-manager Service:', error);
   process.exit(1);
 });

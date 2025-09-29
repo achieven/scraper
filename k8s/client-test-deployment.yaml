@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: websocket-client
+  namespace: kafka
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: websocket-client
+  template:
+    metadata:
+      labels:
+        app: websocket-client
+    spec:
+      containers:
+      - name: websocket-client
+        image: node:20-alpine
+        command: ["/bin/sh"]
+        args:
+          - -c
+          - |
+            npm install ws && node -e "
+            const WebSocket = require('ws');
+            const ws = new WebSocket('ws://web-server:3001');
+            
+            ws.onopen = () => {
+              console.log('Connected to proxy server.');
+            };
+            
+            ws2.onmessage = (event) => {
+              console.log('Message from server2:', event.data.substring(0,100));
+            };
+            
+            ws.onclose = () => {
+              console.log('Disconnected from proxy server.');
+            };
+            
+            ws.onerror = (error) => {
+              console.log('WebSocket error:', error);
+            };
+            
+            // Send message after connection is established
+            ws.onopen = () => {
+              console.log('Connected to proxy server.');
+              ws.send(JSON.stringify({event: 'job', message: 'https://publc.com'}));
+            };
+            "
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "200m"

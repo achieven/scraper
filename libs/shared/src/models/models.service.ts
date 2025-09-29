@@ -1,17 +1,25 @@
 import { Injectable } from '@nestjs/common';
 
 
-import { EventName } from '../websocket/websocket.service';
+import { EventName } from '../websocket/websocket-server.service';
 
 export interface Url  {
-    url: string,
+    url: string
+}
+
+export interface Html  {
+    response: string,
     clientWebsocketId: string,
-    initiatorWebsocketId: string,
 }
 
 export interface WebsocketData {
     event: EventName,
-    message: any
+    message: string | Html
+}
+
+export interface QueueMessageUrl extends Url {
+    clientWebsocketId: string,
+    internalIp: string,
 }
 
 @Injectable()

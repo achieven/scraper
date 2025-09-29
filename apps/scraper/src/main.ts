@@ -6,12 +6,12 @@ import { AppModule } from './app.module';
 async function bootstrap() {
   const app = await NestFactory.createApplicationContext(AppModule);
   process.on('SIGINT', async () => {
-    console.log('Shutting down Scraper Service...');
+    console.log('Shutting down scraper Service...');
     await app.close();
     process.exit(0);
   });
 }
 bootstrap().catch((error) => {
-  console.error('Failed to start Scraper Service:', error);
+  console.error('Failed to start scraper Service:', error);
   process.exit(1);
 });

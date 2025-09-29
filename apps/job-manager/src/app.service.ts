@@ -5,7 +5,8 @@ import { isURL } from 'class-validator';
 import { ConsumerProducerService } from '../../../libs/shared/src/queue/consumer-producer.service';
 
 import { Topics, Groups, TopicName, GroupName } from '../../../libs/shared/src/queue/queue.service';
-import { Url } from '../../../libs/shared/src/models/models.service';
+import { QueueMessageUrl } from '../../../libs/shared/src/models/models.service';
+
 
 @Injectable()
 export class AppService extends ConsumerProducerService {
@@ -17,15 +18,14 @@ export class AppService extends ConsumerProducerService {
     await this.init();
   }
 
-  protected async consumeMessage(messageData: Url): Promise<void> {
+  protected async consumeMessage(messageData: QueueMessageUrl): Promise<void> {
     const isValid = this.validateMessage(messageData);
     if (!isValid) {
       throw new Error(`invalid message ${JSON.stringify(messageData)}`);
     }
-    return Promise.resolve();
   }
 
-  private validateMessage(messageData: Url): boolean {
+  private validateMessage(messageData: QueueMessageUrl): boolean {
     const hasUrl = messageData.url;
     return hasUrl && isURL(messageData.url);
   }
