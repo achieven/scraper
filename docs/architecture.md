@@ -30,7 +30,7 @@ Drawbacks:
 
   Motivation:
   1. Easier to develop than websockets, no need to handle connection issues
-  2. Job's value (i.e html) is persisted to DB, allows easy polling of a big text, more suitable that a message broker for this type of task
+  2. Job's value (i.e html) is persisted to DB, allows easy polling of a big text, more suitable than a message broker for this type of task
 
   Drawbacks:
   1. Not real-time response as soon as job is finished
