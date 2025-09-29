@@ -15,7 +15,7 @@
 4. nodejs (i'm using v20) & nestjs for local debugging
 
 ## Deployment
-[Deployment]](./docs/deployment.md)
+[Deployment](./docs/deployment.md)
 
 ### K8s:
 #### Install kafka (note there's also a kafka-ui deployment & service for your cenvenience):
@@ -43,7 +43,7 @@
     docker compose build $SERVICE --progress=plain --no-cache
     kind load docker-image scraper-${SERVICE}:latest
 
-    # only for services that have open ports (web-server/scraper) 
+    # only for services that have open ports (web-server) 
     kubectl apply -f k8s/$SERVICE-service.yaml 
 
     # deployment of services
@@ -166,7 +166,7 @@ ws.send(JSON.stringify({event: 'job', message: 'https://google.com'}));
 
 
 ## TODOS:  
-[TODOS]](./docs/todos.md)
+[TODOS](./docs/todos.md)
 
 ### General TODOS:  
 1. implement proxy
@@ -194,7 +194,7 @@ Specifically, inside the k8s cluster, in case of edge case (1), the onerror/oncl
 
 
 ## Architecture:
-[Architecture]](./docs/architecture.md)
+[Architecture](./docs/architecture.md)
 
 ### Current architecture:
 
