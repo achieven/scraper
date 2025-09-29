@@ -11,8 +11,8 @@ import { WebsocketModule } from '../../../libs/shared/src/websocket/websocket.mo
     AppService, 
     MyWebsocketService,
     {
-      provide: 'TERMINATOR_PORT',
-      useValue: 3002,
+      provide: 'WEB_SOCKET_PORT',
+      useValue: 3001,
     },
   ],
 })

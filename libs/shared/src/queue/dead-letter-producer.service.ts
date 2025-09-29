@@ -20,16 +20,14 @@ export class DeadLetterProducerService extends GeneralProducerService implements
         super(queueService);
     }
 
-    async sendDeadLetter(topic: string, partition: number | null, message: KafkaMessage | any, err: any) {
+    async sendDeadLetter(topic: string, partition: number | null, message: KafkaMessage | any, err: any, messageResult: any = undefined) {
         await this.send(this.outputTopic, JSON.stringify({
             value: message.value.toString(), 
             offset: message.offset,
             topic,
             partition,
+            messageResult,
             err: err.stack
         }))
     }
 }
-
-// @Injectable()
-// export class ConcreteDeadLetterProducerService extends DeadLetterProducerService {}

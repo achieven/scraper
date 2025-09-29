@@ -12,13 +12,13 @@ import { WebsocketModule } from '../../../libs/shared/src/websocket/websocket.mo
     AppService,
     MyWebsocketService,
     {
-      provide: 'INITIATOR_PORT',
+      provide: 'WEB_SOCKET_PORT',
       useValue: 3001,
     },
     {
-      provide: 'TERMINATOR_PORT',
-      useValue: 3002,
-    },
+      provide: 'MY_INTERNAL_IP',
+      useValue: process.env.MY_INTERNAL_IP || 'localhost'
+    }
   ],
   exports: [],
 })

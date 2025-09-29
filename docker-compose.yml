@@ -47,7 +47,7 @@ services:
       KAFKA_PORT: 29092
       DEAD_LETTER_HOST: kafka
       DEAD_LETTER_PORT: 29092
-      TERMINATOR_HOST: scraper
+      MY_INTERNAL_IP: web-server
     depends_on:
       - kafka
     restart: always

@@ -29,11 +29,3 @@ export abstract class GeneralProducerService implements OnModuleInit {
         });
     }
 }
-
-// @Injectable()
-// export class ConcreteProducerService extends ProducerService {
-//     protected outputTopic: string = '';
-//     constructor(protected readonly queueService: QueueService, protected readonly deadLetterProducerService: DeadLetterProducerService) {
-//         super(queueService, deadLetterProducerService);
-//     }
-// }

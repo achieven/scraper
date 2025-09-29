@@ -33,8 +33,10 @@ spec:
               value: "9092"
             - name: NODE_ENV
               value: local
-            - name: TERMINATOR_HOST
-              value: scraper
+            - name: MY_INTERNAL_IP
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.podIP
           image: scraper-web-server:latest
           name: my-web-server
           imagePullPolicy: Never

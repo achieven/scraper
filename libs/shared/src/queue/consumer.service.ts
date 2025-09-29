@@ -5,9 +5,13 @@ import { Consumer, ConsumerConfig, KafkaMessage } from 'kafkajs';
 import { DeadLetterProducerService } from './dead-letter-producer.service';
 import { MessageQueueService } from './message-queue.service';
 
-import { Url } from '../models/models.service';
+import { QueueMessageUrl } from '../models/models.service';
 
 
+export const ErrorMessages = {  
+  messageValueUndefined: 'Message value is undefined',
+  messageWithResponse: 'Message with response',
+} as const
 
 @Injectable()
 export abstract class ConsumerService {
@@ -34,13 +38,20 @@ export abstract class ConsumerService {
             eachMessage: async ({ topic, partition, message }) => {
               try {
                 counter++;
-                console.log(counter)
                 await this.handleMessageIfValued(this.getMessageValue(message))
                 counter = 0
-              } catch (err) {
-                if (counter - 2 === this.consumerConfig?.retry?.retries) {
+              } catch (err: any) {
+                
+                const exhastedRestries = counter - 1 === this.consumerConfig?.retry?.retries
+                let messageResult;
+                if (exhastedRestries) {
                   counter = 0
-                  this.handleRetryExhausted(this.getMessageValue(message), topic, partition, message, err)
+                  if (err.message.startsWith(ErrorMessages.messageWithResponse)) {
+                    const error = JSON.parse(err.message.substring(ErrorMessages.messageWithResponse.length))
+                    messageResult = error.response
+                    err = new Error(error.stack)
+                  }
+                  await this.handleRetryExhausted(this.getMessageValue(message), topic, partition, message, err, messageResult)
                 } else {
                     throw err;
                 }
@@ -59,44 +70,20 @@ export abstract class ConsumerService {
 
     private async handleMessageIfValued(messageValue: string | undefined) {
       if (messageValue) {
-        await this.handleMessage(messageValue)
-        return
+        return await this.handleMessage(messageValue)
       } else {
-        throw new Error('Message value is undefined');
+        throw new Error(ErrorMessages.messageValueUndefined);
       }
     }
 
-    private async handleRetryExhausted(messageValue: string | undefined, topic: string, partition: number, message: KafkaMessage, err: any) {
+    private async handleRetryExhausted(messageValue: string | undefined, topic: string, partition: number, message: KafkaMessage, err: any, messageResult: any) {
         if (messageValue) {
-            await this.deadLetterProducerService.sendDeadLetter(topic, partition, message, err);
+            await this.deadLetterProducerService.sendDeadLetter(topic, partition, message, err, messageResult);
             return
         } else {
-            throw new Error('Message value is undefined');
+            throw new Error(ErrorMessages.messageValueUndefined);
         }
     }
 
-    protected abstract consumeMessage(messageData: Url): Promise<any>;
-}
-
-@Injectable()
-export class ConcreteConsumerService extends ConsumerService {
-    protected inputTopic: string = '';
-    protected groupId: string = '';
-
-    async onInit(groupId: string, inputTopic: string) {
-      this.groupId = groupId;
-      this.inputTopic = inputTopic;
-      await super.init();
-      
-    }
-
-    protected consumeMessage(messageData: Url): Promise<void> {
-      return Promise.resolve();
-    };
-    protected produceMessage(messageValue: string): Promise<void> {
-      return Promise.resolve();
-    };
-    protected produceDeadLetter(topic: string, partition: number | null, message: KafkaMessage): Promise<void> {
-      return Promise.resolve();
-    };
+    protected abstract consumeMessage(messageData: QueueMessageUrl): Promise<any>;
 }
