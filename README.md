@@ -214,13 +214,13 @@ Motivation:
 
 Drawbacks:
 1. in case of socket connections being closed - message is not returned to the user (can be replayed as mentioned)
+2. If user is actually an externally exposed api and not an internally developed frontend - they also depend on communicating using websockets instead of http
 
-### Alternative architecturs:
+### Alternative architectures
 
-#### Alternative architecture #1: 
+#### #1 - http & polling from DB: 
 1. Web server as an http server instead of websocket
-...(message broker behavior the same)
-2. Scraper persists html to DB, requires implementing a transactional outbox pattern for atomicity between broker and DB
+2. Scraper persists html to DB - requires implementing a transactional outbox pattern for atomicity between broker and DB
 3. User polls the job to see if it's finished
 
   Motivation:
@@ -232,18 +232,20 @@ Drawbacks:
   2. Requires implementing transactional outbox pattern between the broker and the DB
 
 
-#### Alternative architecture #2: 
+#### #2 - http & websockets combined: 
 
 1. Web server as an http server from the user, and a websocket server for receiving the html
 
   Motivation:  
-  1. Keeping real time nature, while reduces the socket user's websocket connection issues
+  1. Keeping real time nature
+  2. Reduces the socket user's websocket connection issues
+  3. Suitable if user is actually an api and not a frontend web app developed internally
 
   Drawbacks:  
   1. If message is not being processed correctly - response isn't returned and user and cannot be "replayed" (unless implementing polling)
 
 
-#### Alternative architecture #3: 
+#### #3 - adding a "responder" service as last step: 
 
 1. Scraper publishes to another topic (e.g "scraped") 
 2. Another, new service consumes from it and sends the websocket message to the webserver.
@@ -254,6 +256,13 @@ Drawbacks:
   Drawbacks:
   1. Not in the task description
   2. Another service (and topic etc..) to handle, but that's relatively negligeble
+
+#### #4 - #2 & #3 combined:
+  Motivation:
+  1. Best of both worlds (keeping real-time behavior, separation of concerns, websocket connection issues, suitable for external api)
+
+  Drawbacks:
+  1. Worst of both worlds :smile: (requires implementing polling for replaying, more services to manage)
 
 
 ### Current Architecture diagram:

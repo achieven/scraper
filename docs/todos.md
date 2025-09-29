@@ -1,3 +1,6 @@
+## TODOS:  
+[TODOS](./docs/todos.md)
+
 ### General TODOS:  
 1. implement proxy
 2. implement autoscaling with keda/other

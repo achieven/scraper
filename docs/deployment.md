@@ -1,3 +1,6 @@
+## Deployment
+[Deployment](./docs/deployment.md)
+
 ### K8s:
 #### Install kafka (note there's also a kafka-ui deployment & service for your cenvenience):
   ```
