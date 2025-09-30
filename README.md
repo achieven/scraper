@@ -243,6 +243,7 @@ Drawbacks:
 
   Drawbacks:  
   1. If message is not being processed correctly - response isn't returned and user and cannot be "replayed" (unless implementing polling)
+  2. Requires awaiting the websocket message, relatively complex
 
 
 #### #3 - adding a "responder" service as last step: 
@@ -257,12 +258,15 @@ Drawbacks:
   1. Not in the task description
   2. Another service (and topic etc..) to handle, but that's relatively negligeble
 
-#### #4 - #2 & #3 combined:
+#### #4 - mix alternatives, (e.g #2 & #3 combined, or #1 & #3 combined):
   Motivation:
-  1. Best of both worlds (keeping real-time behavior, separation of concerns, websocket connection issues, suitable for external api)
+  1. Best of both worlds (e.g: keeping real-time behavior, separation of concerns, websocket connection issues, suitable for external api)
 
   Drawbacks:
-  1. Worst of both worlds :smile: (requires implementing polling for replaying, more services to manage)
+  1. Worst of both worlds :smile: (e.g: requires implementing polling for replaying, more services to manage)
+
+#### Solutions that don't scale:
+Other solutions such as web-server consuming the finished job, or web-server acting as a client to the scraper/responder service - don't scale because it can't know which instance (of the web-server of the scraper/responder) will consume the message
 
 
 ### Current Architecture diagram:
